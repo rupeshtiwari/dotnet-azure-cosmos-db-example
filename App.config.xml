@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-    <configuration>
-      <appSettings>
-        <add key="accountEndpoint" value="https://my-account.documents.azure.com:443/" />
-        <add key="accountKey" value="6e7sRxunccGEeO7IVlMdeFt5BdsllfSGLYc28KyjzkESiCu7tfWbTaZXAErt2v88gOcMbOYgwp1q4NYDifD7ew==" />
-      </appSettings>
-</configuration>
