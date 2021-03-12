@@ -38,9 +38,29 @@ namespace azure_cosmos_db_example {
 
             Console.WriteLine ("Database and collection creation/validation is complete");
 
+            // Create User
             await this.CreateUserDocumentIfNotExists ("customers", "users", new UserData ().nelapin);
             await this.CreateUserDocumentIfNotExists ("customers", "users", new UserData ().yanhe);
+
+            // Read User
             await this.ReadUserDocument ("customers", "users", new UserData ().yanhe);
+
+            // Update User
+            var userToUpdate = new UserData ().yanhe;
+            userToUpdate.LastName = "Ruk";
+            await this.ReplaceUserDocument ("customers", "users", userToUpdate);
+        }
+        private async Task ReplaceUserDocument (string databaseName, string collectionName, User updatedUser) {
+            try {
+                await this.client.ReplaceDocumentAsync (UriFactory.CreateDocumentUri (databaseName, collectionName, updatedUser.Id), updatedUser, new RequestOptions { PartitionKey = new PartitionKey (updatedUser.UserId) });
+                this.WriteToConsoleAndPromptToContinue ("Replaced last name for {0}", updatedUser.LastName);
+            } catch (DocumentClientException de) {
+                if (de.StatusCode == HttpStatusCode.NotFound) {
+                    this.WriteToConsoleAndPromptToContinue ("User {0} not found for replacement", updatedUser.Id);
+                } else {
+                    throw;
+                }
+            }
         }
 
         private async Task CreateUserDocumentIfNotExists (string databaseName, string collectionName, User user) {
@@ -58,12 +78,6 @@ namespace azure_cosmos_db_example {
             }
         }
 
-        private void WriteToConsoleAndPromptToContinue (string format, params object[] args) {
-            Console.WriteLine (format, args);
-            Console.WriteLine ("Press any key to continue ...");
-            Console.ReadKey ();
-        }
-
         private async Task ReadUserDocument (string databaseName, string collectionName, User user) {
             try {
                 var userResource = await this.client.ReadDocumentAsync (UriFactory.CreateDocumentUri (databaseName, collectionName, user.Id), new RequestOptions { PartitionKey = new PartitionKey (user.UserId) });
@@ -77,6 +91,12 @@ namespace azure_cosmos_db_example {
                     throw;
                 }
             }
+        }
+
+        private void WriteToConsoleAndPromptToContinue (string format, params object[] args) {
+            Console.WriteLine (format, args);
+            Console.WriteLine ("Press any key to continue ...");
+            Console.ReadKey ();
         }
     }
 }
