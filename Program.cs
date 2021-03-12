@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using Newtonsoft.Json;
 
 namespace azure_cosmos_db_example {
     class Program {
@@ -40,6 +40,7 @@ namespace azure_cosmos_db_example {
 
             await this.CreateUserDocumentIfNotExists ("customers", "users", new UserData ().nelapin);
             await this.CreateUserDocumentIfNotExists ("customers", "users", new UserData ().yanhe);
+            await this.ReadUserDocument ("customers", "users", new UserData ().yanhe);
         }
 
         private async Task CreateUserDocumentIfNotExists (string databaseName, string collectionName, User user) {
@@ -61,6 +62,21 @@ namespace azure_cosmos_db_example {
             Console.WriteLine (format, args);
             Console.WriteLine ("Press any key to continue ...");
             Console.ReadKey ();
+        }
+
+        private async Task ReadUserDocument (string databaseName, string collectionName, User user) {
+            try {
+                var userResource = await this.client.ReadDocumentAsync (UriFactory.CreateDocumentUri (databaseName, collectionName, user.Id), new RequestOptions { PartitionKey = new PartitionKey (user.UserId) });
+                var userFromDb = userResource.Resource;
+                this.WriteToConsoleAndPromptToContinue ("Read user {0}", user.Id);
+                this.WriteToConsoleAndPromptToContinue ("Read user {0}", Newtonsoft.Json.JsonConvert.SerializeObject (userFromDb, Formatting.Indented));
+            } catch (DocumentClientException de) {
+                if (de.StatusCode == HttpStatusCode.NotFound) {
+                    this.WriteToConsoleAndPromptToContinue ("User {0} not read", user.Id);
+                } else {
+                    throw;
+                }
+            }
         }
     }
 }
