@@ -56,6 +56,28 @@ namespace azure_cosmos_db_example {
 
             // Run LINQ
             this.ExecuteLinqQuery ("customers", "users");
+
+            // Run SQL 
+            this.ExecuteSQLQuery("customers", "users");
+        }
+
+        private void ExecuteSQLQuery (string databaseName, string collectionName) {
+            // Set some common query options
+            FeedOptions queryOptions = new FeedOptions { MaxItemCount = -1, EnableCrossPartitionQuery = true };
+
+            /// Now execute the same query via direct SQL
+            IQueryable<User> userQueryInSql = this.client.CreateDocumentQuery<User> (
+                UriFactory.CreateDocumentCollectionUri (databaseName, collectionName),
+                "SELECT * FROM User WHERE User.lastName = 'Pindakova'", queryOptions);
+
+            Console.WriteLine ("Running direct SQL query...");
+            foreach (User user in userQueryInSql) {
+                Console.WriteLine ("\tRead {0}", 
+                 JsonConvert.SerializeObject (user, Formatting.Indented));
+            }
+
+            Console.WriteLine ("Press any key to continue ...");
+            Console.ReadKey ();
         }
 
         private void ExecuteLinqQuery (string databaseName, string collectionName) {
