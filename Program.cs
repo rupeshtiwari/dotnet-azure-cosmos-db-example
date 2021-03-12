@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Configuration;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using Newtonsoft.Json;
 
 namespace azure_cosmos_db_example {
     class Program {
@@ -33,7 +30,7 @@ namespace azure_cosmos_db_example {
 
             await this.client.CreateDatabaseIfNotExistsAsync (new Database { Id = "customers" });
 
-            await this.client.CreateDocumentCollectionIfNotExistsAsync (UriFactory.CreateDatabaseUri("customers"), new DocumentCollection { Id = "users" });
+            await this.client.CreateDocumentCollectionIfNotExistsAsync (UriFactory.CreateDatabaseUri ("customers"), new DocumentCollection { Id = "users" });
 
             Console.WriteLine ("Database and collection creation/validation is complete");
         }
