@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
@@ -52,6 +53,29 @@ namespace azure_cosmos_db_example {
 
             // Delete User
             await this.DeleteUserDocument ("customers", "users", new UserData ().yanhe);
+
+            // Run LINQ
+            this.ExecuteLinqQuery ("customers", "users");
+        }
+
+        private void ExecuteLinqQuery (string databaseName, string collectionName) {
+            // Set some common query options
+            FeedOptions queryOptions = new FeedOptions { MaxItemCount = -1, EnableCrossPartitionQuery = true };
+
+            // Here we find nelapin via their LastName
+            IQueryable<User> userQuery = this.client.CreateDocumentQuery<User> (
+                    UriFactory.CreateDocumentCollectionUri (databaseName, collectionName), queryOptions)
+                .Where (u => u.LastName == "Pindakova");
+
+            // The query is executed synchronously here, but can also be executed asynchronously via the IDocumentQuery<T> interface
+            Console.WriteLine ("Running LINQ query...");
+            foreach (User user in userQuery) {
+                Console.WriteLine ("\tRead {0}",
+                    JsonConvert.SerializeObject (user, Formatting.Indented));
+            }
+
+            Console.WriteLine ("Press any key to continue ...");
+            Console.ReadKey ();
         }
 
         private async Task DeleteUserDocument (string databaseName, string collectionName, User deletedUser) {
