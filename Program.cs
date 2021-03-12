@@ -49,6 +49,24 @@ namespace azure_cosmos_db_example {
             var userToUpdate = new UserData ().yanhe;
             userToUpdate.LastName = "Ruk";
             await this.ReplaceUserDocument ("customers", "users", userToUpdate);
+
+            // Delete User
+            await this.DeleteUserDocument ("customers", "users", new UserData ().yanhe);
+        }
+
+        private async Task DeleteUserDocument (string databaseName, string collectionName, User deletedUser) {
+            try {
+                await this.client.DeleteDocumentAsync (UriFactory.CreateDocumentUri (databaseName, collectionName, deletedUser.Id), new RequestOptions { PartitionKey = new PartitionKey (deletedUser.UserId) });
+
+                Console.WriteLine ("Deleted user {0}", deletedUser.Id);
+
+            } catch (DocumentClientException de) {
+                if (de.StatusCode == HttpStatusCode.NotFound) {
+                    this.WriteToConsoleAndPromptToContinue ("User {0} not found for deletion", deletedUser.Id);
+                } else {
+                    throw;
+                }
+            }
         }
         private async Task ReplaceUserDocument (string databaseName, string collectionName, User updatedUser) {
             try {
